@@ -1,0 +1,10 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+<h2>Add Sale</h2>
+<form method="get" class="mb-3">{{ search_form.q.label_tag }} {{ search_form.q }}<button class="btn btn-outline-primary" type="submit">Search</button> <a class="btn btn-outline-secondary" href="{% url 'dashboard:add_sale' %}">Clear</a></form>
+
+<form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn btn-primary" type="submit">Record Sale</button> <a class="btn btn-secondary" href="{% url 'dashboard:sales_list' %}">Back to Sales</a></form>
+
+<h4 class="mt-4">Matching Products (server-side search)</h4>
+<table class="table table-sm"><thead><tr><th>Name</th><th>Price</th><th>Stock</th></tr></thead><tbody>{% for p in products %}<tr><td>{{ p.name }}</td><td>KES {{ p.price }}</td><td>{{ p.qty }}</td></tr>{% empty %}<tr><td colspan="3">No matching products</td></tr>{% endfor %}</tbody></table>
+{% endblock %}

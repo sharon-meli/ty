@@ -1,0 +1,12 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+<h2>Reports — {{ period|capfirst }}</h2>
+<p>Total sales: KES {{ totals.total_sales }} | Total profit: KES {{ totals.total_profit }}</p>
+<p><a class="btn btn-sm btn-outline-primary" href="{% url 'dashboard:reports' 'daily' %}">Daily</a> <a class="btn btn-sm btn-outline-primary" href="{% url 'dashboard:reports' 'weekly' %}">Weekly</a> <a class="btn btn-sm btn-outline-primary" href="{% url 'dashboard:reports' 'monthly' %}">Monthly</a> <a class="btn btn-sm btn-outline-secondary" href="{% url 'dashboard:report_pdf' period %}">Print PDF</a> <a class="btn btn-secondary" href="{% url 'dashboard:index' %}">Back to Dashboard</a></p>
+
+<div class="row"><div class="col-md-6"><h5>Sales vs Profit (by product)</h5><canvas id="barChart"></canvas></div><div class="col-md-6"><h5>Sales trend (by period)</h5><canvas id="lineChart"></canvas></div></div>
+
+<table class="table table-bordered mt-4"><thead><tr><th>Product</th><th>Qty Sold</th><th>Revenue</th><th>Profit</th></tr></thead><tbody>{% for row in by_product %}<tr><td>{{ row.product__name }}</td><td>{{ row.qty_sold }}</td><td>{{ row.revenue }}</td><td>{{ row.profit }}</td></tr>{% empty %}<tr><td colspan="4">No sales yet</td></tr>{% endfor %}</tbody><tfoot><tr><th>Totals</th><th>{{ totals.total_qty }}</th><th>{{ totals.total_sales }}</th><th>{{ totals.total_profit }}</th></tr></tfoot>
+
+<script>const byProduct = {{ by_product|safe }};const grouped = {{ grouped|safe }};const labels = byProduct.map(r => r.product__name);const salesData = byProduct.map(r => r.revenue || 0);const profitData = byProduct.map(r => r.profit || 0);const barCtx = document.getElementById('barChart') && document.getElementById('barChart').getContext('2d');if (barCtx) { new Chart(barCtx, { type: 'bar', data: { labels, datasets: [{ label: 'Revenue', data: salesData }, { label: 'Profit', data: profitData }] }, options: { responsive: true, scales: { y: { beginAtZero: true } } } }); } const trendLabels = grouped.map(r => r.period);const trendData = grouped.map(r => r.total_sales || 0);const lineCtx = document.getElementById('lineChart') && document.getElementById('lineChart').getContext('2d');if (lineCtx) { new Chart(lineCtx, { type: 'line', data: { labels: trendLabels, datasets: [{ label: 'Sales', data: trendData, tension: 0.3 }] }, options: { responsive: true } }); }</script>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+<h3>Products & Stock</h3>
+<table class="table table-striped">
+  <thead><tr><th>Product</th><th>Price</th><th>Cost</th><th>Stock</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for p in products %}
+    <tr>
+      <td>{{ p.name }}</td>
+      <td>KES {{ p.price }}</td>
+      <td>KES {{ p.cost_price }}</td>
+      <td>
+        {{ p.qty }}
+        {% if p.qty == 1 %}
+          <span class="badge bg-warning text-dark">Only 1 left</span>
+        {% elif p.qty == 0 %}
+          <span class="badge bg-danger">Out of stock</span>
+        {% endif %}
+      </td>
+      <td>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'dashboard:edit_product' p.pk %}">Edit</a>
+        <a class="btn btn-sm btn-outline-danger" href="{% url 'dashboard:delete_product' p.pk %}">Delete</a>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'dashboard:edit_stock' p.pk %}">Manage Stock</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h3>Recent Sales</h3>
+<ul>
+  {% for s in recent_sales %}
+    <li>{{ s.quantity }} × {{ s.product.name }} at {{ s.sold_at }} (<a href="{% url 'dashboard:edit_sale' s.pk %}">edit</a> | <a href="{% url 'dashboard:delete_sale' s.pk %}">delete</a>)</li>
+  {% empty %}
+    <li>No sales yet</li>
+  {% endfor %}
+</ul>
+
+<!-- Low stock modal -->
+<div class="modal" tabindex="-1" id="lowStockModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Stock disclaimer</h5></div>
+      <div class="modal-body" id="lowStockBody"></div>
+      <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const low = {{ low_stock|safe }};
+  if (low.length > 0) {
+    const lines = low.map(p => {
+      if (p.qty == 0) return `❌ ${p.name} is out of stock!`;
+      if (p.qty == 1) return `⚠️ ${p.name} is running low — only 1 left.`;
+      return `${p.name}: ${p.qty}`;
+    });
+    document.getElementById('lowStockBody').innerHTML = '<p>' + lines.join('<br>') + '</p>';
+    var modal = new bootstrap.Modal(document.getElementById('lowStockModal'));
+    modal.show();
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,5 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+<h2>Sales</h2>
+<p><a class="btn btn-primary" href="{% url 'dashboard:add_sale' %}">Add Sale</a></p>
+<table class="table"><thead><tr><th>Product</th><th>Qty</th><th>Time</th><th>Actions</th></tr></thead><tbody>{% for s in sales %}<tr><td>{{ s.product.name }}</td><td>{{ s.quantity }}</td><td>{{ s.sold_at }}</td><td><a class="btn btn-sm btn-outline-secondary" href="{% url 'dashboard:edit_sale' s.pk %}">Edit</a> <a class="btn btn-sm btn-outline-danger" href="{% url 'dashboard:delete_sale' s.pk %}">Delete</a></td></tr>{% empty %}<tr><td colspan="4">No sales yet</td></tr>{% endfor %}</tbody></table>{% endblock %}
